@@ -1,8 +1,8 @@
 # Sistema de Ventas e Inventario
 
-Sistema web integral para la gestión de ventas, compras, inventario, clientes y proveedores. Desarrollado con **Laravel 11** (API Backend) y **Vue 3** (Frontend), utilizando **PostgreSQL** como base de datos.
+Sistema web integral para la gestión de ventas, compras, inventario, clientes y proveedores. Desarrollado con **Laravel 12** (API Backend) y **Vue 3** (Frontend), utilizando **PostgreSQL** como base de datos.
 
-## 🚀 Características Principales
+## ✨ Características Principales
 
 -   **Gestión de Productos**: Control de inventario, categorías, alertas de stock bajo y manejo de imágenes.
 -   **Ventas**: Punto de venta (POS) con cálculo automático de totales, impuestos y descuentos. Soporte para ventas al contado y crédito.
@@ -12,14 +12,14 @@ Sistema web integral para la gestión de ventas, compras, inventario, clientes y
 -   **Reportes**: Generación de reportes en PDF para auditoría y control financiero.
 -   **API RESTful**: Arquitectura moderna API-First con separación clara entre Backend y Frontend.
 
-## 🛠️ Tecnologías
+## 🧰 Tecnologías
 
--   **Backend**: PHP 8.2+, Laravel 11.
+-   **Backend**: PHP 8.4+, Laravel 12.
 -   **Frontend**: Vue.js 3, Bootstrap 5, Axios, SweetAlert2.
 -   **Base de Datos**: PostgreSQL 16+.
 -   **Herramientas**: Vite, Composer, NPM.
 
-## ✅ Testing
+## 🧪 Testing
 
 Para ejecutar las pruebas automatizadas del proyecto:
 
@@ -45,14 +45,14 @@ Este proyecto está preparado para CI. Se recomienda configurar un pipeline (ej.
 
 Asegúrese de configurar las variables de entorno necesarias en su proveedor de CI para la conexión a base de datos de pruebas.
 
-## 📋 Requisitos Previos
+## ✅ Requisitos Previos
 
--   PHP >= 8.2
+-   PHP >= 8.4
 -   Composer
 -   Node.js & NPM
 -   Servidor PostgreSQL
 
-## 🔧 Instalación
+## 🚀 Instalación
 
 1. **Clonar el repositorio**
 
@@ -101,7 +101,7 @@ Asegúrese de configurar las variables de entorno necesarias en su proveedor de 
     ```
     _Para desarrollo:_ `npm run dev`
 
-## 🏁 Ejecución
+## ▶️ Ejecución
 
 Para iniciar el servidor local de desarrollo:
 
