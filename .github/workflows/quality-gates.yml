@@ -26,10 +26,10 @@ jobs:
         uses: actions/checkout@v4
 
       # Paso 2: Configurar PHP con las extensiones necesarias
-      - name: Setup PHP 8.3
+      - name: Setup PHP 8.4
         uses: shivammathur/setup-php@v2
         with:
-          php-version: "8.3"
+          php-version: "8.4"
           extensions: mbstring, xml, ctype, iconv, intl, pdo_sqlite, pdo_pgsql, gd, zip
           coverage: none
 
@@ -54,7 +54,7 @@ jobs:
 
       # Paso 6: GATE 2 - Analisis estatico con PHPStan
       - name: "Gate 2: Static Analysis (PHPStan)"
-        run: ./vendor/bin/phpstan analyse app config database routes tests
+        run: ./vendor/bin/phpstan analyse
 
       # Paso 7: Configurar entorno para tests
       - name: Setup Test Environment
