@@ -12,7 +12,7 @@ Configurar protecciones para la rama `main` con PR obligatorio, 1 aprobacion, ch
    - `Require a pull request before merging`
    - `Require approvals` y setear `Required approving reviews` en `1`
    - `Require status checks to pass before merging`
-     - Seleccionar los checks reales del workflow: `Backend Quality (PHP)`, `Frontend Quality (JS/Vue)` y `Pipeline Summary`
+     - Seleccionar los checks reales del workflow: `Backend Quality (PHP)`, `Backend Tests (PHP)`, `Frontend Quality (JS/Vue)` y `Pipeline Summary`
    - `Require branches to be up to date before merging`
    - `Do not allow bypassing the above settings`
    - `Block force pushes`
