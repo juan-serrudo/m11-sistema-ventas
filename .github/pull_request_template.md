@@ -1,5 +1,5 @@
 ## Qué cambia
-- Tipo: feat | fix | refactor | ci | docs
+- Tipo: feat|fix|refactor|ci|docs
 - Descripción breve:
 
 ## Evidencia
@@ -18,6 +18,3 @@
 ## Riesgo / rollback
 - Riesgo:
 - Rollback:
-
-## Notas (opcional)
-- Capturas / links relevantes:

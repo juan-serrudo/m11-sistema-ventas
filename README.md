@@ -45,6 +45,17 @@ Este proyecto está preparado para CI. Se recomienda configurar un pipeline (ej.
 
 Asegúrese de configurar las variables de entorno necesarias en su proveedor de CI para la conexión a base de datos de pruebas.
 
+## 🛡️ Gobernanza / Branch protection
+
+Estas reglas deben estar activas en la rama `main`:
+
+- Require PR before merge
+- Require 1 approval
+- Require status checks: `Backend Quality (PHP)`, `Frontend Quality (JS/Vue)`
+- Require branches up to date
+- Do not allow bypassing
+- Block force pushes / restrict deletions
+
 ## ✅ Requisitos Previos
 
 -   PHP >= 8.4
