@@ -66,18 +66,29 @@ jobs:
   backend-tests:
     name: Backend Tests (PHP)
     runs-on: ubuntu-latest
+    env:
+      APP_ENV: testing
+      CACHE_DRIVER: array
+      SESSION_DRIVER: array
+      QUEUE_CONNECTION: sync
+      DB_CONNECTION: pgsql
+      DB_HOST: 127.0.0.1
+      DB_PORT: 5432
+      DB_DATABASE: compras_ventas_test
+      DB_USERNAME: compras_user
+      DB_PASSWORD: compras_pass
 
     services:
       postgres:
         image: postgres:16
         env:
-          POSTGRES_DB: sistema_ventas_test
-          POSTGRES_USER: postgres
-          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: compras_ventas_test
+          POSTGRES_USER: compras_user
+          POSTGRES_PASSWORD: compras_pass
         ports:
           - 5432:5432
         options: >-
-          --health-cmd "pg_isready -U postgres -d sistema_ventas_test"
+          --health-cmd "pg_isready -U compras_user -d compras_ventas_test"
           --health-interval 10s
           --health-timeout 5s
           --health-retries 5
@@ -90,7 +101,7 @@ jobs:
         uses: shivammathur/setup-php@v2
         with:
           php-version: "8.4"
-          extensions: mbstring, xml, ctype, iconv, intl, pdo_pgsql, gd, zip
+          extensions: mbstring, intl, pdo_pgsql
           coverage: none
 
       - name: Get Composer Cache Directory
@@ -111,25 +122,12 @@ jobs:
         run: |
           cp .env.example .env
           php artisan key:generate
+          php artisan optimize:clear
 
       - name: Run Migrations
-        env:
-          DB_CONNECTION: pgsql
-          DB_HOST: 127.0.0.1
-          DB_PORT: 5432
-          DB_DATABASE: sistema_ventas_test
-          DB_USERNAME: postgres
-          DB_PASSWORD: postgres
         run: php artisan migrate --force
 
       - name: "Gate 4: PHPUnit Tests"
-        env:
-          DB_CONNECTION: pgsql
-          DB_HOST: 127.0.0.1
-          DB_PORT: 5432
-          DB_DATABASE: sistema_ventas_test
-          DB_USERNAME: postgres
-          DB_PASSWORD: postgres
         run: php artisan test
 
   # ==================================================================
