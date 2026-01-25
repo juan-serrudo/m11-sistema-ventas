@@ -17,6 +17,9 @@ return Application::configure(basePath: dirname(__DIR__))
 
         // Stateful para Sanctum (si se usa SPA, pero aquí es API stateless principalmente,
         // aunque sanctum puede gestionar cookie auth. Lo dejaremos por defecto).
+
+        $middleware->api(append: [App\Http\Middleware\LogContextMiddleware::class]);
+        $middleware->web(append: [App\Http\Middleware\LogContextMiddleware::class]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         //
