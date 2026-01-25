@@ -445,7 +445,8 @@ const configurarHeaders = (token) => {
     // Configurar manejador de errores global para jQuery (DataTables 401)
     // Remover handlers anteriores para evitar duplicados
     $(document).off('ajaxError'); 
-    $(document).ajaxError((event, jqxhr, settings, thrownError) => {
+    $(document).ajaxError((event, jqxhr) => {
+        void event;
         if (jqxhr.status === 401) {
             console.warn("jQuery AJAX 401 DETECTADO (DataTables)");
             if (localStorage.getItem('auth_token')) {

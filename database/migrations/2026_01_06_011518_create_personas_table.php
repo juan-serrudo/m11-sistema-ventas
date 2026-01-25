@@ -21,6 +21,10 @@ return new class extends Migration
      */
     public function up(): void
     {
+        if (Schema::hasTable('personas')) {
+            return;
+        }
+
         Schema::create('personas', function (Blueprint $table) {
             // Clave primaria autoincremental
             $table->id();

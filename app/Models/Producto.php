@@ -4,7 +4,11 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
+/**
+ * @property-read Categoria|null $categoria
+ */
 class Producto extends Model
 {
     use HasFactory;
@@ -38,7 +42,7 @@ class Producto extends Model
     protected $appends = ['margen_utilidad', 'tiene_stock_bajo'];
 
     // Relación con categoría
-    public function categoria()
+    public function categoria(): BelongsTo
     {
         return $this->belongsTo(Categoria::class);
     }
@@ -83,6 +87,6 @@ class Producto extends Model
         $ultimo = self::orderBy('id', 'desc')->first();
         $numero = $ultimo ? (int) substr($ultimo->codigo, 4) + 1 : 1;
 
-        return 'PROD'.str_pad($numero, 6, '0', STR_PAD_LEFT);
+        return 'PROD'.str_pad((string) $numero, 6, '0', STR_PAD_LEFT);
     }
 }

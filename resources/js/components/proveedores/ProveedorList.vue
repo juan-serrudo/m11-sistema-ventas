@@ -713,8 +713,8 @@ const inicializarDataTable = () => {
                     }
                     return [];
                 },
-                error: function (xhr, error, thrown) {
-                    console.error("Error al cargar datos:", error);
+                error: function (xhr, error) {
+                    console.error("Error al cargar datos:", error, xhr);
                     Swal.fire({
                         icon: "error",
                         title: "Error",

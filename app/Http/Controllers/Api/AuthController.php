@@ -3,6 +3,8 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Models\Rol;
+use App\Models\User;
 use App\Services\AuditLogger;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -30,6 +32,12 @@ class AuthController extends Controller
 
         if (Auth::attempt(['email' => $request->email, 'password' => $request->password])) {
             $user = Auth::user();
+            if (! $user instanceof User) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Usuario no válido.',
+                ], 401);
+            }
 
             // Verificar si el usuario está activo
             if (! $user->estado) {
@@ -49,7 +57,7 @@ class AuthController extends Controller
 
             // Obtener roles y permisos para el frontend
             $roles = $user->roles->pluck('nombre');
-            $permisos = $user->roles->flatMap(function ($rol) {
+            $permisos = $user->roles->flatMap(function (Rol $rol) {
                 return $rol->permisos;
             })->pluck('slug')->unique();
 
@@ -101,8 +109,14 @@ class AuthController extends Controller
     public function user(Request $request)
     {
         $user = $request->user();
+        if (! $user instanceof User) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Usuario no autenticado.',
+            ], 401);
+        }
         $roles = $user->roles->pluck('nombre');
-        $permisos = $user->roles->flatMap(function ($rol) {
+        $permisos = $user->roles->flatMap(function (Rol $rol) {
             return $rol->permisos;
         })->pluck('slug')->unique();
 

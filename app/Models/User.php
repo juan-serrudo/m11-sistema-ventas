@@ -13,6 +13,8 @@ use Laravel\Sanctum\HasApiTokens;
  * Modelo User
  *
  * Usuario del sistema con soporte para roles y permisos.
+ *
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, Rol> $roles
  */
 class User extends Authenticatable
 {

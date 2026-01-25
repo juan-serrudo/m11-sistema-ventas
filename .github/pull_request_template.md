@@ -1,24 +1,20 @@
-# Descripción del Cambio
+## Qué cambia
+- Tipo: feat|fix|refactor|ci|docs
+- Descripción breve:
 
-<!-- ¿Qué hace este PR? ¿Qué problema resuelve? -->
+## Evidencia
+- [ ] CI en verde (GitHub Actions)
+- [ ] Backend ejecutado localmente:
+  - [ ] composer install
+  - [ ] composer lint
+  - [ ] composer static
+  - [ ] php artisan test
+- [ ] Frontend ejecutado localmente:
+  - [ ] npm ci
+  - [ ] npm run lint
+  - [ ] npm run test
+  - [ ] npm run build
 
-# Tipo de Cambio
-
--   [ ] 🐛 Bug fix (corrección de error no disruptiva)
--   [ ] ✨ New feature (nueva funcionalidad no disruptiva)
--   [ ] 💥 Breaking change (arreglo o funcionalidad que rompe compatibilidad)
--   [ ] 📝 Documentación
-
-# ¿Cómo se ha probado?
-
-<!-- Describe las pruebas realizadas para verificar tus cambios -->
-
--   [ ] Pruebas Unitarias
--   [ ] Pruebas Manuales (Local)
-
-# Checklist:
-
--   [ ] Mi código sigue el estilo de este proyecto.
--   [ ] He realizado una auto-revisión de mi código.
--   [ ] Mis cambios no generan nuevas advertencias.
--   [ ] He añadido pruebas que demuestran que mi arreglo es efectivo o que mi funcionalidad funciona.
+## Riesgo / rollback
+- Riesgo:
+- Rollback:

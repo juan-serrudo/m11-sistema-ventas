@@ -11,6 +11,9 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  *
  * Representa un ítem (producto) dentro de una venta.
  * Es el modelo detalle del módulo de ventas (relación maestro-detalle).
+ *
+ * @property-read Venta|null $venta
+ * @property-read Producto|null $producto
  */
 class DetalleVenta extends Model
 {
@@ -86,14 +89,14 @@ class DetalleVenta extends Model
 
         // Después de guardar, recalcular totales de la venta
         static::saved(function (DetalleVenta $detalle) {
-            if ($detalle->venta) {
+            if ($detalle->venta instanceof Venta) {
                 $detalle->venta->calcularTotales();
             }
         });
 
         // Después de eliminar, recalcular totales de la venta
         static::deleted(function (DetalleVenta $detalle) {
-            if ($detalle->venta) {
+            if ($detalle->venta instanceof Venta) {
                 $detalle->venta->calcularTotales();
             }
         });

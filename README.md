@@ -29,6 +29,12 @@ Para ejecutar las pruebas automatizadas del proyecto:
 php artisan test
 ```
 
+Para ejecutar solo unit tests (sin DB):
+
+```bash
+php artisan test --testsuite=Unit
+```
+
 ### Pruebas de Frontend (si aplica)
 
 ```bash
@@ -44,6 +50,19 @@ Este proyecto está preparado para CI. Se recomienda configurar un pipeline (ej.
 3.  Pruebas unitarias y de integración (PHPUnit).
 
 Asegúrese de configurar las variables de entorno necesarias en su proveedor de CI para la conexión a base de datos de pruebas.
+
+Nota de CI: el fallo original se debía a un mismatch de plataforma (composer.lock generado con PHP ^8.2, pero CI ejecutaba PHP 8.4). El lockfile fue regenerado para PHP 8.4.
+
+## 🛡️ Gobernanza / Protección de main
+
+Estas reglas deben estar activas en la rama `main`:
+
+- Require PR before merge
+- Require 1 approval
+- Require status checks: `Backend Quality (PHP)`, `Backend Tests (PHP)`, `Frontend Quality (JS/Vue)`, `Pipeline Summary`
+- Require branches up to date
+- Do not allow bypassing
+- Block force pushes / restrict deletions
 
 ## ✅ Requisitos Previos
 

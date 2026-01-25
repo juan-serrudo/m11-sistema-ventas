@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
 
 /**
@@ -36,6 +37,7 @@ use Illuminate\Support\Facades\DB;
  * @property-read float $porcentaje_credito_usado Porcentaje de crédito utilizado
  * @property-read Persona $persona Relación con persona
  * @property-read \Illuminate\Database\Eloquent\Collection|Venta[] $ventas Ventas del cliente
+ * @property int $cantidad_compras
  *
  * @method static Builder activos() Scope para filtrar clientes activos
  * @method static Builder vip() Scope para filtrar clientes VIP
@@ -59,7 +61,7 @@ class Cliente extends Model
      * Define los campos que pueden ser llenados mediante asignación masiva
      * para protección contra vulnerabilidades de asignación masiva
      *
-     * @var array<string>
+     * @var list<string>
      */
     protected $fillable = [
         'persona_id',          // ID de la persona asociada
@@ -103,7 +105,7 @@ class Cliente extends Model
      * Estos accessors se incluyen automáticamente en JSON/array
      * NOTA: Puede afectar rendimiento en consultas masivas
      *
-     * @var array<string>
+     * @var list<string>
      */
     protected $appends = [
         'credito_disponible',          // Crédito disponible calculado
@@ -282,7 +284,7 @@ class Cliente extends Model
             $numero = $ultimo ? (int) substr($ultimo->codigo, strlen(self::CODIGO_PREFIJO)) + 1 : 1;
 
             // Formatear código con padding de ceros
-            return self::CODIGO_PREFIJO.str_pad($numero, 6, '0', STR_PAD_LEFT);
+            return self::CODIGO_PREFIJO.str_pad((string) $numero, 6, '0', STR_PAD_LEFT);
         });
     }
 
@@ -361,7 +363,7 @@ class Cliente extends Model
      */
     public function actualizarUltimaCompra($fecha = null): bool
     {
-        $this->ultima_compra = $fecha ?? now();
+        $this->ultima_compra = $fecha ? Carbon::parse($fecha) : now();
 
         return $this->save();
     }

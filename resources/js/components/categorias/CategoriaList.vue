@@ -156,8 +156,8 @@ const inicializarDataTable = () => {
                     }
                     return [];
                 },
-                error: function(xhr, error, thrown) {
-                    console.error('Error al cargar datos:', error);
+                error: function(xhr, error) {
+                    console.error('Error al cargar datos:', error, xhr);
                     Swal.fire({
                         icon: 'error',
                         title: 'Error',
@@ -173,7 +173,7 @@ const inicializarDataTable = () => {
                 },
                 { 
                     data: 'nombre',
-                    render: function(data, type, row) {
+                    render: function(data) {
                         return `<strong>${data}</strong>`;
                     }
                 },
@@ -282,6 +282,7 @@ const editarCategoria = async (id) => {
             mostrarFormulario.value = true;
         }
     } catch (error) {
+        console.error('Error al cargar la categoría:', error);
         Swal.fire({
             icon: 'error',
             title: 'Error',

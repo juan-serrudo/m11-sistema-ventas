@@ -1,0 +1,16 @@
+includes:
+    - vendor/larastan/larastan/extension.neon
+
+parameters:
+    level: 5
+    treatPhpDocTypesAsCertain: false
+    paths:
+        - app
+        - config
+        - database
+        - routes
+        - tests
+    universalObjectCratesClasses:
+        - Illuminate\Http\Request
+        - Illuminate\Http\Resources\Json\JsonResource
+        - Illuminate\Contracts\Auth\Authenticatable
