@@ -129,6 +129,7 @@ jobs:
           cp .env.example .env
           php artisan key:generate
           php artisan optimize:clear
+          echo "http://localhost:5173" > public/hot
 
       - name: Run Migrations
         run: php artisan migrate --force
