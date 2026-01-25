@@ -2,24 +2,15 @@
 
 namespace App\Http\Controllers;
 
+use App\Services\Health\DatabaseHealthChecker;
 use Illuminate\Http\JsonResponse;
-use Illuminate\Support\Facades\DB;
 
 class HealthController extends Controller
 {
-    public function __invoke(): JsonResponse
+    public function __invoke(DatabaseHealthChecker $checker): JsonResponse
     {
-        $dbOk = false;
-        $latencyMs = null;
-
-        try {
-            $t0 = microtime(true);
-            DB::select('select 1');
-            $latencyMs = (int) ((microtime(true) - $t0) * 1000);
-            $dbOk = true;
-        } catch (\Throwable $e) {
-            $dbOk = false;
-        }
+        $dbOk = $checker->check();
+        $latencyMs = $checker->getLatencyMs();
 
         return response()->json([
             'status' => $dbOk ? 'ok' : 'degraded',

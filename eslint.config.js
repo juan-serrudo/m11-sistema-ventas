@@ -1,46 +1,65 @@
 import js from '@eslint/js';
 import pluginVue from 'eslint-plugin-vue';
 import eslintConfigPrettier from 'eslint-config-prettier';
+import vitest from '@vitest/eslint-plugin';
+import globals from 'globals';
 
 export default [
-  {
-    ignores: [
-       "vendor/**",
-       "public/**",
-       "node_modules/**",
-       "storage/**",
-       "bootstrap/ssr/**"
-    ]
-  },
-  // Configuración base de JS
-  js.configs.recommended,
-
-  // Configuración de Vue (Essential -> Recommended es mejor para evitar bugs)
-  ...pluginVue.configs['flat/recommended'],
-
-  // Desactivar reglas de formato que chocan con Prettier
-  eslintConfigPrettier,
-
-  {
-    rules: {
-      // Aquí puedes personalizar tus reglas
-      'vue/multi-word-component-names': 'off',
-      'no-undef': 'off',
-      'no-unused-vars': 'warn',
-      'vue/no-unused-vars': 'warn',
-      'vue/attributes-order': 'off', // Desactivamos orden estricto de atributos para evitar ruido
-      'vue/first-attribute-linebreak': 'off',
+    {
+        ignores: [
+            'vendor/**',
+            'public/**',
+            'node_modules/**',
+            'storage/**',
+            'bootstrap/ssr/**',
+        ],
     },
-    languageOptions: {
-      globals: {
-        // Define globales si es necesario, ejemplo para browser:
-        window: 'readonly',
-        document: 'readonly',
-        console: 'readonly',
-        $ : 'readonly',
-        jQuery: 'readonly',
-        axios: 'readonly'
-      }
-    }
-  }
+    js.configs.recommended,
+    ...pluginVue.configs['flat/recommended'],
+    eslintConfigPrettier,
+    {
+        languageOptions: {
+            ecmaVersion: 2022,
+            sourceType: 'module',
+            globals: {
+                ...globals.browser,
+                ...globals.node,
+                $: 'readonly',
+                jQuery: 'readonly',
+                axios: 'readonly',
+            },
+        },
+        rules: {
+            'vue/multi-word-component-names': 'off',
+            'no-undef': 'error',
+            'no-unused-vars': 'error',
+            'vue/no-unused-vars': 'error',
+            'vue/attributes-order': 'off',
+            'vue/first-attribute-linebreak': 'off',
+        },
+    },
+    {
+        files: ['**/*.{test,spec}.{js,ts}'],
+        plugins: {
+            vitest,
+        },
+        languageOptions: {
+            globals: {
+                ...globals.browser,
+                ...globals.node,
+                describe: 'readonly',
+                it: 'readonly',
+                test: 'readonly',
+                expect: 'readonly',
+                vi: 'readonly',
+                beforeAll: 'readonly',
+                afterAll: 'readonly',
+                beforeEach: 'readonly',
+                afterEach: 'readonly',
+            },
+        },
+        rules: {
+            ...vitest.configs.recommended.rules,
+        },
+    },
 ];

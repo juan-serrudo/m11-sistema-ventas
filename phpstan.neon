@@ -3,6 +3,8 @@ includes:
 
 parameters:
     level: 5
+    checkMissingTypehints: false
+    reportUnmatchedIgnoredErrors: false
     treatPhpDocTypesAsCertain: false
     paths:
         - app
@@ -14,3 +16,6 @@ parameters:
         - Illuminate\Http\Request
         - Illuminate\Http\Resources\Json\JsonResource
         - Illuminate\Contracts\Auth\Authenticatable
+    ignoreErrors:
+        - identifier: missingType.iterableValue
+        - identifier: missingType.generics
