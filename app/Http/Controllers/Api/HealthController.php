@@ -11,6 +11,7 @@ class HealthController extends Controller
 {
     public function __invoke(): JsonResponse
     {
+        \Log::info('health_check_hit');
         try {
             DB::select('SELECT 1');
 

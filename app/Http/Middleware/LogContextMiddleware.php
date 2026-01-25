@@ -10,9 +10,6 @@ use Illuminate\Support\Str;
 
 class LogContextMiddleware
 {
-    /**
-     * @param  Closure(Request): \Symfony\Component\HttpFoundation\Response  $next
-     */
     public function handle(Request $request, Closure $next)
     {
         Log::withContext([

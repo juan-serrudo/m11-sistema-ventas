@@ -16,6 +16,4 @@ class HealthTest extends TestCase
                 'db' => 'ok',
             ]);
     }
-
-    // TODO: Simular fallo de DB para validar respuesta 500 con {status:error, db:error}.
 }
