@@ -70,11 +70,11 @@ jobs:
     if: ${{ github.ref == 'refs/heads/main' }}
     environment: staging
     env:
-      STAGING_HOST: ${{ secrets.STAGING_HOST }}
-      STAGING_USER: ${{ secrets.STAGING_USER }}
-      STAGING_PORT: ${{ secrets.STAGING_PORT }}
+      STAGING_HOST: ${{ vars.STAGING_HOST }}
+      STAGING_USER: ${{ vars.STAGING_USER }}
+      STAGING_PORT: ${{ vars.STAGING_PORT }}
       STAGING_APP_URL: ${{ vars.STAGING_APP_URL }}
-      STAGING_APP_PATH: ${{ secrets.STAGING_APP_PATH }}
+      STAGING_APP_PATH: ${{ vars.STAGING_APP_PATH }}
     steps:
       - name: Download artifact
         uses: actions/download-artifact@v4
@@ -97,8 +97,13 @@ jobs:
         shell: bash
         run: |
           set -e
+          mkdir -p ~/.ssh
+          if [ -z "$STAGING_HOST" ]; then
+            echo "ERROR: STAGING_HOST is empty"
+            exit 1
+          fi
           PORT="${STAGING_PORT:-22}"
-          ssh-keyscan -p "$PORT" "$STAGING_HOST" >> ~/.ssh/known_hosts
+          ssh-keyscan -H -p "$PORT" "$STAGING_HOST" >> ~/.ssh/known_hosts
 
       - name: Upload release
         shell: bash
@@ -146,11 +151,11 @@ jobs:
     if: ${{ (github.ref_type == 'tag' || github.event_name == 'workflow_dispatch') && needs.deploy_staging.result == 'success' }}
     environment: production
     env:
-      PROD_HOST: ${{ secrets.PROD_HOST }}
-      PROD_USER: ${{ secrets.PROD_USER }}
-      PROD_PORT: ${{ secrets.PROD_PORT }}
+      PROD_HOST: ${{ vars.PROD_HOST }}
+      PROD_USER: ${{ vars.PROD_USER }}
+      PROD_PORT: ${{ vars.PROD_PORT }}
       PROD_APP_URL: ${{ vars.PROD_APP_URL }}
-      PROD_APP_PATH: ${{ secrets.PROD_APP_PATH }}
+      PROD_APP_PATH: ${{ vars.PROD_APP_PATH }}
     steps:
       - name: Download artifact
         uses: actions/download-artifact@v4
@@ -173,8 +178,13 @@ jobs:
         shell: bash
         run: |
           set -e
+          mkdir -p ~/.ssh
+          if [ -z "$PROD_HOST" ]; then
+            echo "ERROR: PROD_HOST is empty"
+            exit 1
+          fi
           PORT="${PROD_PORT:-22}"
-          ssh-keyscan -p "$PORT" "$PROD_HOST" >> ~/.ssh/known_hosts
+          ssh-keyscan -H -p "$PORT" "$PROD_HOST" >> ~/.ssh/known_hosts
 
       - name: Upload release
         shell: bash
@@ -220,11 +230,12 @@ jobs:
     runs-on: self-hosted
     needs: deploy_staging
     if: ${{ always() && needs.deploy_staging.result == 'failure' }}
+    environment: staging
     env:
-      STAGING_HOST: ${{ secrets.STAGING_HOST }}
-      STAGING_USER: ${{ secrets.STAGING_USER }}
-      STAGING_PORT: ${{ secrets.STAGING_PORT }}
-      STAGING_APP_PATH: ${{ secrets.STAGING_APP_PATH }}
+      STAGING_HOST: ${{ vars.STAGING_HOST }}
+      STAGING_USER: ${{ vars.STAGING_USER }}
+      STAGING_PORT: ${{ vars.STAGING_PORT }}
+      STAGING_APP_PATH: ${{ vars.STAGING_APP_PATH }}
     steps:
       - name: Setup SSH
         uses: webfactory/ssh-agent@v0.9.0
@@ -235,8 +246,13 @@ jobs:
         shell: bash
         run: |
           set -e
+          mkdir -p ~/.ssh
+          if [ -z "$STAGING_HOST" ]; then
+            echo "ERROR: STAGING_HOST is empty"
+            exit 1
+          fi
           PORT="${STAGING_PORT:-22}"
-          ssh-keyscan -p "$PORT" "$STAGING_HOST" >> ~/.ssh/known_hosts
+          ssh-keyscan -H -p "$PORT" "$STAGING_HOST" >> ~/.ssh/known_hosts
 
       - name: Rollback staging
         shell: bash
@@ -263,11 +279,12 @@ jobs:
     runs-on: self-hosted
     needs: deploy_production
     if: ${{ always() && needs.deploy_production.result == 'failure' }}
+    environment: production
     env:
-      PROD_HOST: ${{ secrets.PROD_HOST }}
-      PROD_USER: ${{ secrets.PROD_USER }}
-      PROD_PORT: ${{ secrets.PROD_PORT }}
-      PROD_APP_PATH: ${{ secrets.PROD_APP_PATH }}
+      PROD_HOST: ${{ vars.PROD_HOST }}
+      PROD_USER: ${{ vars.PROD_USER }}
+      PROD_PORT: ${{ vars.PROD_PORT }}
+      PROD_APP_PATH: ${{ vars.PROD_APP_PATH }}
     steps:
       - name: Setup SSH
         uses: webfactory/ssh-agent@v0.9.0
@@ -278,8 +295,13 @@ jobs:
         shell: bash
         run: |
           set -e
+          mkdir -p ~/.ssh
+          if [ -z "$PROD_HOST" ]; then
+            echo "ERROR: PROD_HOST is empty"
+            exit 1
+          fi
           PORT="${PROD_PORT:-22}"
-          ssh-keyscan -p "$PORT" "$PROD_HOST" >> ~/.ssh/known_hosts
+          ssh-keyscan -H -p "$PORT" "$PROD_HOST" >> ~/.ssh/known_hosts
 
       - name: Rollback production
         shell: bash
