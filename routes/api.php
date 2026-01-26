@@ -4,6 +4,7 @@ use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\CategoriaController;
 use App\Http\Controllers\Api\ClienteController;
 use App\Http\Controllers\Api\CompraController;
+use App\Http\Controllers\Api\HealthController;
 use App\Http\Controllers\Api\PermisoController;
 use App\Http\Controllers\Api\ProductoController;
 use App\Http\Controllers\Api\ProveedorController;
@@ -11,7 +12,6 @@ use App\Http\Controllers\Api\ReporteController;
 use App\Http\Controllers\Api\RolController;
 use App\Http\Controllers\Api\UsuarioController;
 use App\Http\Controllers\Api\VentaController;
-use App\Http\Controllers\Api\HealthController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/health', HealthController::class);
