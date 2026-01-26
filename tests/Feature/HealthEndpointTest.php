@@ -2,21 +2,21 @@
 
 namespace Tests\Feature;
 
-use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
 class HealthEndpointTest extends TestCase
 {
-    use RefreshDatabase;
-
     public function test_health_endpoint_returns_ok_when_db_is_up(): void
     {
         $response = $this->getJson('/api/health');
 
         $response->assertStatus(200)
-            ->assertJsonFragment([
+            ->assertJson([
                 'status' => 'ok',
+                'db' => 'ok',
             ])
-            ->assertJsonPath('db.ok', true);
+            ->assertJsonMissing([
+                'error' => true,
+            ]);
     }
 }

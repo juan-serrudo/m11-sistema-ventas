@@ -14,6 +14,7 @@ use Exception;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 
 /**
  * Controlador API para gestión de Ventas
@@ -90,6 +91,10 @@ class VentaController extends Controller
             $venta->load(['cliente.persona', 'detalles.producto']);
 
             AuditLogger::insercion("Venta creada: {$venta->codigo} (Cliente ID: {$venta->cliente_id})", $request->input('detalles'));
+            Log::info('venta_creada', [
+                'venta_id' => $venta->id,
+                'monto' => $venta->total,
+            ]);
 
             return response()->json([
                 'success' => true,
