@@ -9,6 +9,8 @@ on:
   workflow_dispatch:
 
 jobs:
+  # NOTE: There is a separate deploy workflow in .github/workflows/deploy.yml that
+  # builds on the server. This CD workflow is the official TP2 pipeline.
   build:
     runs-on: self-hosted
     steps:
@@ -63,35 +65,74 @@ jobs:
           path: release.tgz
 
   deploy_staging:
-    runs-on: [self-hosted, staging, debian]
+    runs-on: self-hosted
     needs: build
     if: ${{ github.ref == 'refs/heads/main' }}
     environment: staging
     env:
+      STAGING_HOST: ${{ secrets.STAGING_HOST }}
+      STAGING_USER: ${{ secrets.STAGING_USER }}
+      STAGING_PORT: ${{ secrets.STAGING_PORT }}
       STAGING_APP_URL: ${{ vars.STAGING_APP_URL }}
+      STAGING_APP_PATH: ${{ secrets.STAGING_APP_PATH }}
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-
       - name: Download artifact
         uses: actions/download-artifact@v4
         with:
           name: release
 
-      - name: Extract artifact
+      - name: Read RELEASE_ID
+        id: release
         shell: bash
         run: |
           set -e
-          rm -rf release
-          mkdir release
-          tar -xzf release.tgz -C release
+          echo "release_id=$(tar -xOf release.tgz RELEASE_ID)" >> "$GITHUB_OUTPUT"
 
-      - name: Sync to staging path
+      - name: Setup SSH
+        uses: webfactory/ssh-agent@v0.9.0
+        with:
+          ssh-private-key: ${{ secrets.STAGING_SSH_KEY }}
+
+      - name: Add host to known_hosts
         shell: bash
-        working-directory: release
         run: |
           set -e
-          rsync -av --delete ./ /var/www/comprasventas-staging/
+          PORT="${STAGING_PORT:-22}"
+          ssh-keyscan -p "$PORT" "$STAGING_HOST" >> ~/.ssh/known_hosts
+
+      - name: Upload release
+        shell: bash
+        run: |
+          set -e
+          PORT="${STAGING_PORT:-22}"
+          rsync -az -e "ssh -p $PORT" release.tgz "$STAGING_USER@$STAGING_HOST:/tmp/comprasventas-release.tgz"
+
+      - name: Deploy on staging
+        shell: bash
+        run: |
+          set -e
+          PORT="${STAGING_PORT:-22}"
+          RELEASE_ID="${{ steps.release.outputs.release_id }}"
+          APP_ROOT="$STAGING_APP_PATH"
+          ssh -p "$PORT" "$STAGING_USER@$STAGING_HOST" \
+            "APP_ROOT='$APP_ROOT' RELEASE_ID='$RELEASE_ID' bash -s" <<'EOF'
+          set -e
+          if [ ! -d "$APP_ROOT" ]; then
+            echo "ERROR: APP_ROOT no existe: $APP_ROOT"
+            exit 1
+          fi
+          RELEASE_DIR="$APP_ROOT/releases/$RELEASE_ID"
+          mkdir -p "$RELEASE_DIR"
+          tar -xzf /tmp/comprasventas-release.tgz -C "$RELEASE_DIR"
+          ln -sfn "$APP_ROOT/shared/.env" "$RELEASE_DIR/.env"
+          if [ -d "$APP_ROOT/shared/storage" ]; then
+            ln -sfn "$APP_ROOT/shared/storage" "$RELEASE_DIR/storage"
+          fi
+          cd "$RELEASE_DIR"
+          php artisan optimize:clear || true
+          php artisan migrate --force
+          ln -sfn "$RELEASE_DIR" "$APP_ROOT/current"
+          EOF
 
       - name: Health gate
         shell: bash
@@ -101,14 +142,14 @@ jobs:
 
   deploy_production:
     runs-on: self-hosted
-    needs: build
-    if: ${{ github.ref_type == 'tag' || github.event_name == 'workflow_dispatch' }}
+    needs: deploy_staging
+    if: ${{ (github.ref_type == 'tag' || github.event_name == 'workflow_dispatch') && needs.deploy_staging.result == 'success' }}
     environment: production
     env:
       PROD_HOST: ${{ secrets.PROD_HOST }}
       PROD_USER: ${{ secrets.PROD_USER }}
       PROD_PORT: ${{ secrets.PROD_PORT }}
-      PROD_APP_URL: ${{ secrets.PROD_APP_URL }}
+      PROD_APP_URL: ${{ vars.PROD_APP_URL }}
       PROD_APP_PATH: ${{ secrets.PROD_APP_PATH }}
     steps:
       - name: Download artifact
