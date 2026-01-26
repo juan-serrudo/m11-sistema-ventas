@@ -68,7 +68,7 @@ jobs:
     if: ${{ github.ref == 'refs/heads/main' }}
     environment: staging
     env:
-      STAGING_APP_URL: ${{ secrets.STAGING_APP_URL }}
+      STAGING_APP_URL: ${{ vars.STAGING_APP_URL }}
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -97,7 +97,7 @@ jobs:
         shell: bash
         run: |
           set -e
-          curl -fsS "$STAGING_APP_URL/api/health"
+          curl -fsS "${STAGING_APP_URL}/api/health"
 
   deploy_production:
     runs-on: self-hosted
