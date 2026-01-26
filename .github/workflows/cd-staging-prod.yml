@@ -67,7 +67,7 @@ jobs:
   deploy_staging:
     runs-on: self-hosted
     needs: build
-    if: ${{ github.ref == 'refs/heads/main' }}
+    if: ${{ github.ref == 'refs/heads/main' || startsWith(github.ref, 'refs/tags/v') }}
     environment: staging
     env:
       STAGING_HOST: ${{ vars.STAGING_HOST }}
@@ -148,7 +148,7 @@ jobs:
   deploy_production:
     runs-on: self-hosted
     needs: deploy_staging
-    if: ${{ (github.ref_type == 'tag' || github.event_name == 'workflow_dispatch') && needs.deploy_staging.result == 'success' }}
+    if: ${{ startsWith(github.ref, 'refs/tags/v') && needs.deploy_staging.result == 'success' }}
     environment: production
     env:
       PROD_HOST: ${{ vars.PROD_HOST }}
