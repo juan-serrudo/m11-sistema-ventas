@@ -52,7 +52,7 @@ jobs:
             git checkout -- public/index.php public/.htaccess public/robots.txt public/favicon.ico
           fi
 
-      - name: Guardrail: fail if public/index.php missing
+      - name: "Guardrail: fail if public/index.php missing"
         shell: bash
         run: |
           set -e
