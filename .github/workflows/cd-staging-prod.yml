@@ -155,23 +155,40 @@ jobs:
           APP_ROOT="$STAGING_APP_PATH"
           ssh -p "$PORT" "$STAGING_USER@$STAGING_HOST" \
             "APP_ROOT='$APP_ROOT' RELEASE_ID='$RELEASE_ID' bash -s" <<'EOF'
-          set -e
+          set -euo pipefail
           if [ ! -d "$APP_ROOT" ]; then
             echo "ERROR: APP_ROOT no existe: $APP_ROOT"
             exit 1
           fi
-          RELEASE_DIR="$APP_ROOT/releases/$RELEASE_ID"
+          BASE="$APP_ROOT"
+          SHARED_DIR="$BASE/shared"
+          RELEASE_DIR="$BASE/releases/$RELEASE_ID"
+          echo "BASE=$BASE"
+          echo "SHARED_DIR=$SHARED_DIR"
+          echo "RELEASE_DIR=$RELEASE_DIR"
+          if [ ! -f "$SHARED_DIR/.env" ]; then
+            echo "ERROR: .env no existe en $SHARED_DIR/.env"
+            exit 1
+          fi
           mkdir -p "$RELEASE_DIR"
           tar -xzf /tmp/comprasventas-release.tgz -C "$RELEASE_DIR"
           test -f "$RELEASE_DIR/public/index.php"
-          ln -sfn "$APP_ROOT/shared/.env" "$RELEASE_DIR/.env"
-          if [ -d "$APP_ROOT/shared/storage" ]; then
-            ln -sfn "$APP_ROOT/shared/storage" "$RELEASE_DIR/storage"
-          fi
+          sudo mkdir -p \
+            "$SHARED_DIR/storage/framework/cache" \
+            "$SHARED_DIR/storage/framework/sessions" \
+            "$SHARED_DIR/storage/framework/views" \
+            "$SHARED_DIR/storage/logs" \
+            "$RELEASE_DIR/bootstrap/cache"
+          ln -sfn "$SHARED_DIR/storage" "$RELEASE_DIR/storage"
+          ln -sfn "$SHARED_DIR/.env" "$RELEASE_DIR/.env"
+          sudo chown -R www-data:www-data "$SHARED_DIR/storage" "$RELEASE_DIR/bootstrap/cache"
+          sudo chmod -R 775 "$SHARED_DIR/storage" "$RELEASE_DIR/bootstrap/cache"
+          ls -la "$RELEASE_DIR"
+          ls -l "$RELEASE_DIR/storage"
           cd "$RELEASE_DIR"
-          php artisan optimize:clear || true
+          php artisan optimize:clear
           php artisan migrate --force
-          ln -sfn "$RELEASE_DIR" "$APP_ROOT/current"
+          ln -sfn "$RELEASE_DIR" "$BASE/current"
           EOF
 
       - name: Health gate
@@ -237,23 +254,40 @@ jobs:
           APP_ROOT="$PROD_APP_PATH"
           ssh -p "$PORT" "$PROD_USER@$PROD_HOST" \
             "APP_ROOT='$APP_ROOT' RELEASE_ID='$RELEASE_ID' bash -s" <<'EOF'
-          set -e
+          set -euo pipefail
           if [ ! -d "$APP_ROOT" ]; then
             echo "ERROR: APP_ROOT no existe: $APP_ROOT"
             exit 1
           fi
-          RELEASE_DIR="$APP_ROOT/releases/$RELEASE_ID"
+          BASE="$APP_ROOT"
+          SHARED_DIR="$BASE/shared"
+          RELEASE_DIR="$BASE/releases/$RELEASE_ID"
+          echo "BASE=$BASE"
+          echo "SHARED_DIR=$SHARED_DIR"
+          echo "RELEASE_DIR=$RELEASE_DIR"
+          if [ ! -f "$SHARED_DIR/.env" ]; then
+            echo "ERROR: .env no existe en $SHARED_DIR/.env"
+            exit 1
+          fi
           mkdir -p "$RELEASE_DIR"
           tar -xzf /tmp/comprasventas-release.tgz -C "$RELEASE_DIR"
           test -f "$RELEASE_DIR/public/index.php"
-          ln -sfn "$APP_ROOT/shared/.env" "$RELEASE_DIR/.env"
-          if [ -d "$APP_ROOT/shared/storage" ]; then
-            ln -sfn "$APP_ROOT/shared/storage" "$RELEASE_DIR/storage"
-          fi
+          sudo mkdir -p \
+            "$SHARED_DIR/storage/framework/cache" \
+            "$SHARED_DIR/storage/framework/sessions" \
+            "$SHARED_DIR/storage/framework/views" \
+            "$SHARED_DIR/storage/logs" \
+            "$RELEASE_DIR/bootstrap/cache"
+          ln -sfn "$SHARED_DIR/storage" "$RELEASE_DIR/storage"
+          ln -sfn "$SHARED_DIR/.env" "$RELEASE_DIR/.env"
+          sudo chown -R www-data:www-data "$SHARED_DIR/storage" "$RELEASE_DIR/bootstrap/cache"
+          sudo chmod -R 775 "$SHARED_DIR/storage" "$RELEASE_DIR/bootstrap/cache"
+          ls -la "$RELEASE_DIR"
+          ls -l "$RELEASE_DIR/storage"
           cd "$RELEASE_DIR"
-          php artisan optimize:clear || true
+          php artisan optimize:clear
           php artisan migrate --force
-          ln -sfn "$RELEASE_DIR" "$APP_ROOT/current"
+          ln -sfn "$RELEASE_DIR" "$BASE/current"
           EOF
 
       - name: Health gate
