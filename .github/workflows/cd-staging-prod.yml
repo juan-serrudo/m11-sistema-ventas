@@ -23,8 +23,40 @@ jobs:
       - name: Install Node dependencies
         run: npm ci
 
+      - name: Diagnose public/ before build
+        shell: bash
+        run: |
+          set -e
+          ls -la public
+          if [ ! -f public/index.php ]; then
+            echo "WARN: public/index.php missing before build"
+          fi
+
       - name: Build assets
         run: npm run build
+
+      - name: Diagnose public/ after build
+        shell: bash
+        run: |
+          set -e
+          ls -la public
+          if [ ! -f public/index.php ]; then
+            echo "WARN: public/index.php missing after build"
+          fi
+
+      - name: Restore public/ files if build removed them
+        shell: bash
+        run: |
+          set -e
+          if [ ! -f public/index.php ]; then
+            git checkout -- public/index.php public/.htaccess public/robots.txt public/favicon.ico
+          fi
+
+      - name: "Guardrail: fail if public/index.php missing"
+        shell: bash
+        run: |
+          set -e
+          test -f public/index.php
 
       - name: Generate RELEASE_ID
         id: release
@@ -44,6 +76,7 @@ jobs:
         shell: bash
         run: |
           set -e
+          rm -f release.tgz
           tar -czf release.tgz \
             app \
             bootstrap \
@@ -51,12 +84,13 @@ jobs:
             database \
             routes \
             resources \
-            public/build \
+            public \
             vendor \
             artisan \
             composer.json \
             composer.lock \
             RELEASE_ID
+          tar -tzf release.tgz | grep -q '^public/index.php$'
 
       - name: Upload artifact
         uses: actions/upload-artifact@v4
@@ -67,7 +101,7 @@ jobs:
   deploy_staging:
     runs-on: self-hosted
     needs: build
-    if: ${{ github.ref == 'refs/heads/main' || startsWith(github.ref, 'refs/tags/v') }}
+    if: ${{ github.ref == 'refs/heads/main' || github.event_name == 'workflow_dispatch' || startsWith(github.ref, 'refs/tags/v') }}
     environment: staging
     env:
       STAGING_HOST: ${{ vars.STAGING_HOST }}
@@ -129,6 +163,7 @@ jobs:
           RELEASE_DIR="$APP_ROOT/releases/$RELEASE_ID"
           mkdir -p "$RELEASE_DIR"
           tar -xzf /tmp/comprasventas-release.tgz -C "$RELEASE_DIR"
+          test -f "$RELEASE_DIR/public/index.php"
           ln -sfn "$APP_ROOT/shared/.env" "$RELEASE_DIR/.env"
           if [ -d "$APP_ROOT/shared/storage" ]; then
             ln -sfn "$APP_ROOT/shared/storage" "$RELEASE_DIR/storage"
@@ -148,7 +183,7 @@ jobs:
   deploy_production:
     runs-on: self-hosted
     needs: deploy_staging
-    if: ${{ startsWith(github.ref, 'refs/tags/v') && needs.deploy_staging.result == 'success' }}
+    if: ${{ (startsWith(github.ref, 'refs/tags/v') || github.event_name == 'workflow_dispatch') && needs.deploy_staging.result == 'success' }}
     environment: production
     env:
       PROD_HOST: ${{ vars.PROD_HOST }}
@@ -210,6 +245,7 @@ jobs:
           RELEASE_DIR="$APP_ROOT/releases/$RELEASE_ID"
           mkdir -p "$RELEASE_DIR"
           tar -xzf /tmp/comprasventas-release.tgz -C "$RELEASE_DIR"
+          test -f "$RELEASE_DIR/public/index.php"
           ln -sfn "$APP_ROOT/shared/.env" "$RELEASE_DIR/.env"
           if [ -d "$APP_ROOT/shared/storage" ]; then
             ln -sfn "$APP_ROOT/shared/storage" "$RELEASE_DIR/storage"
